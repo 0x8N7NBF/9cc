@@ -32,7 +32,14 @@ extern char *user_input;
 // 現在着目しているトークン
 extern Token *token;
 
+// トークナイザー関数（連結リストを作成）
 Token *tokenize(void);
+
+// トークン操作関数
+bool consume(char *op);
+void expect(char *op);
+int expect_number(void);
+bool at_eof(void);
 
 //
 // Parser (AST generator)
