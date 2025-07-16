@@ -21,6 +21,16 @@ bool consume(char *op) {
     return true;
 }
 
+// 次のトークンが識別子の場合には, トークンを1つ読み進めてその識別子を返す.
+// それ以外の場合にはNULLを返す.
+Token *consume_ident() {
+    if (token->kind != TK_IDENT)
+        return NULL;
+    Token *tok = token;
+    token = token->next;
+    return tok;
+}
+
 // 次のトークンが期待している記号の場合には, トークンを1つ読み進める. 
 // それ以外の場合にはエラーを報告する. (閉じ括弧などで使うことが多い)
 void expect(char *op) {
@@ -83,8 +93,16 @@ Token *tokenize() {
         }
 
         // 1文字の記号  
-        if (strchr("+-*/()<>", *p)) {
+        if (strchr("+-*/()<>=;", *p)) {
             cur = new_token(TK_RESERVED, cur, p++, 1);
+            continue;
+        }
+
+        // 識別子(小文字アルファベット1文字の変数)
+        if ('a' <= *p && *p <= 'z' ||
+            'A' <= *p && *p <= 'Z' ||
+            *p == '_') {
+            cur = new_token(TK_IDENT, cur, p++, 1);
             continue;
         }
 

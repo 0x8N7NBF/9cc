@@ -12,6 +12,7 @@
 // トークンの種類
 typedef enum {
     TK_RESERVED, // 記号
+    TK_IDENT, // 識別子
     TK_NUM, // 整数トークン
     TK_EOF, // 入力の終わりを表すトークン
 } TokenKind;
@@ -22,8 +23,8 @@ struct Token {
     TokenKind kind; // どの種類のトークンか
     Token *next; // 次のトークンを指すポインタ（連結リスト用）
     int val; // kindがTK_NUMの場合, その数値
-    char *str; // kindがTK_RESERVEDの場合, その文字列
-    int len; // kindがTK_RESERVEDの場合, その文字列の長さ
+    char *str; // 文字列
+    int len; // 文字列の長さ
 };
 
 // 入力プログラム
@@ -37,6 +38,7 @@ Token *tokenize(void);
 
 // トークン操作関数
 bool consume(char *op);
+Token *consume_ident(void);
 void expect(char *op);
 int expect_number(void);
 bool at_eof(void);
@@ -55,6 +57,8 @@ typedef enum {
     ND_SUB, // -
     ND_MUL, // *
     ND_DIV, // /
+    ND_ASSIGN, // =
+    ND_LVAR, // ローカル変数
     ND_NUM, // 整数
 } NodeKind;
 
@@ -64,10 +68,20 @@ struct Node {
     NodeKind kind; // ノードの型
     Node *lhs; // 左の子（第1オペランド）を指すポインタ
     Node *rhs; // 右の子（第2オペランド）を指すポインタ
-    int val; // 型がND_NUMの場合, その数値
+    int val; // kindがND_NUMの場合, その数値
+    int offset; // kindがND_LVARの場合, ローカル変数のオフセット
 };
 
+// ASTの根たちを格納する配列
+extern Node *code[100];
+
+void program(void);
+Node *stmt(void);
 Node *expr(void);
+Node *assign(void);
+Node *equality(void);
+Node *relational(void);
+Node *add(void);
 
 //
 // asm code generator (x86-64)
